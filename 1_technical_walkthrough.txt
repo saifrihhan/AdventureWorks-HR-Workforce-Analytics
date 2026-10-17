@@ -1,0 +1,48 @@
+=====================================================
+TECHNICAL WALKTHROUGH: SYNTAX, LOGIC & REASONING
+=====================================================
+
+SETUP & GLOBAL VARIABLES
+Declared three central parameters at the top script level:
+- @AsOfDate: Set to '2014-06-30' (the end date of the AdventureWorks dataset window).
+  Using GETDATE() would artificially inflate overall tenure calculations by over a decade.
+- @VacationRiskHrs: Set to 70 hours as the operational threshold for unused banked leave.
+- @HoursPerMonth: Standardized to 176 hours (8 hrs/day x 22 working days) for labor cost calculations.
+Centralizing these variables ensures parameter adjustments can be made dynamically in a single place.
+
+
+QUERY 1: TURNOVER AND DEPARTMENT STABILITY
+- Joined HumanResources.Department to EmployeeDepartmentHistory and aggregated grouped by department.
+- Used conditional aggregation: SUM(CASE WHEN EndDate IS NOT NULL THEN 1 ELSE 0 END) to identify ended assignments (internal transfers).
+- Applied 100.0 multiplication to force implicit float conversion, preventing T-SQL integer truncation in percentage calculations.
+- Calculated AvgTenureMonths using DATEDIFF with COALESCE(EndDate, @AsOfDate) to handle active employees seamlessly.
+
+
+QUERY 2: PAY DISPARITY & EQUITY
+- Built LatestPay CTE using ROW_NUMBER() OVER (PARTITION BY BusinessEntityID ORDER BY RateChangeDate DESC) to isolate the current pay rate (rn = 1).
+- Isolated active department assignments via CurrentDept CTE (WHERE EndDate IS NULL).
+- Extracted MIN, MAX, AVG, and STDEV per department. Calculated PayDisparityRatio (MAX / MIN) protected with NULLIF(MIN, 0) to avoid division-by-zero errors.
+
+
+QUERY 3: LEAVE UTILIZATION & BURNOUT RISK
+- Joined active employees to current department records.
+- Computed average unused vacation and sick leave hours using float casting (1.0 * VacationHours).
+- Flagged burnout risks where VacationHours > @VacationRiskHrs, calculating the percentage of high-risk headcount per department.
+
+
+QUERY 4: SHIFTS AND LABOR COST ESTIMATION
+- Combined active employee shift assignments with their latest pay rate via CurrentPay CTE.
+- Created Overall CTE to establish the baseline company-wide average hourly rate, joined via CROSS JOIN.
+- Derived the Shift Premium % comparing shift average to company average, and calculated EstimatedMonthlyCost = SUM(Rate * @HoursPerMonth).
+
+
+QUERY 5: RAISE FREQUENCY & COMPENSATION GROWTH
+- Applied LAG(RateChangeDate) OVER (PARTITION BY BusinessEntityID ORDER BY RateChangeDate) in PayIntervals CTE to capture previous raise dates and previous rates within the same row.
+- Evaluated Days Between Raises using DATEDIFF and percentage growth per raise event.
+- Filtered out initial hiring records using WHERE PrevChangeDate IS NOT NULL.
+
+
+QUERY 6: COMPOSITE DEPARTMENT HEALTH SCORECARD
+- Consolidated metrics into three signal CTEs: transfer-out rate, average banked vacation hours, and pay disparity ratio.
+- Evaluated comparative department risk using RANK() OVER (ORDER BY metric DESC) for each signal (where 1 represents highest risk).
+- Summed the three individual ranks into CombinedRiskRank to provide a single composite metric identifying departments requiring intervention.

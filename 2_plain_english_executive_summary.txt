@@ -1,0 +1,27 @@
+=====================================================
+EXECUTIVE SUMMARY: HR WORKFORCE ANALYTICS & INSIGHTS
+=====================================================
+
+OVERVIEW
+This document provides a non-technical summary of the core analytical metrics evaluated across the organization using the AdventureWorks HR dataset.
+
+1. INTERNAL TURNOVER & TRANSFERS
+Measures department mobility by tracking how many employees have transferred out and the average duration of stay. Departments with high transfer rates and short tenures signal potential management, workload, or operational issues. Note: AdventureWorks records internal department movements rather than resignations, so this measures internal transfer-out rates.
+
+2. PAY EQUITY AND GAPS
+Evaluates hourly wage distributions across departments by examining minimums, maximums, and disparity ratios. A high disparity ratio highlights significant compensation gaps between top and lower earners within the same department.
+
+3. BURNOUT RISK
+Tracks unused vacation balances. Employees accumulating excessive banked leave (>70 hours) represent potential burnout risks, reduced productivity, and financial liability for unpaid leave.
+
+4. SHIFT DISTRIBUTION AND COSTS
+Analyzes headcount distribution across Day, Evening, and Night shifts, evaluating how shift averages compare to the company baseline, along with estimated monthly payroll expenses per shift.
+
+5. RAISE FREQUENCY AND GROWTH
+Measures the average duration between wage adjustments and the percentage growth per raise. Tracks how compensation evolves across departments over time.
+
+6. COMPOSITE DEPARTMENT HEALTH SCORECARD
+Combines transfer rates, burnout risks, and pay gaps into a unified ranking system. Ranks departments across all three signals and sums the scores, quickly highlighting which departments face the highest overall operational and retention risks.
+
+BIG PICTURE
+Provides HR leadership with clear, data-driven visibility into workforce stability, compensation equity, and employee well-being to enable proactive decision-making.
